@@ -1,0 +1,202 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage{geometry}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{hyperref}
+
+\geometry{margin=2.5cm}
+
+\title{Sprawozdanie z projektu RPQ\\\large Schrage i Carlier}
+\author{Autor: student}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Cel projektu}
+
+Celem projektu bylo przygotowanie programu rozwiazujacego problem szeregowania typu $1|r_j|C_{max}$. W praktyce chodzilo o to, zeby dla kazdego zadania uwzglednic czas gotowosci $r$, czas wykonania $p$ oraz czas dostarczenia $q$, a potem znalezc taka kolejnosc, dla ktorej wartosc $C_{max}$ bedzie jak najmniejsza.
+
+Projekt byl robiony w sposob raczej dochodzacy, to znaczy nie od razu powstal algorytm dokladny. Najpierw zostala sprawdzona szybka metoda dajaca sensowny wynik startowy, a dopiero pozniej dolozony zostal algorytm Carliera, ktory probuje zejsc do rozwiazania optymalnego albo przynajmniej lepszego.
+
+\section{Opis podejscia}
+
+W programie wykorzystane zostaly trzy glowne elementy:
+
+\begin{itemize}
+    \item algorytm Schrage,
+    \item Schrage z przerwaniami jako ograniczenie dolne,
+    \item algorytm Carliera do przeszukiwania rozwiazan.
+\end{itemize}
+
+Pomysl byl taki, zeby nie zaczynac od bardzo kosztownego liczenia wszystkiego dokladnie, tylko najpierw znalezc rozwiazanie szybkie. Ostatecznie w programie porownywane sa trzy warianty: sam Schrage, Schrage z dodatkowa poprawa przez wstawianie oraz Carlier uruchamiany na bazie rozwiazania heurystycznego.
+
+W wariancie dokladnym program:
+
+\begin{enumerate}
+    \item wczytuje dane z pliku,
+    \item liczy rozwiazanie startowe przez Schrage i lekka poprawke,
+    \item wyznacza blok krytyczny,
+    \item tworzy galezie na podstawie zmian wartosci $r$ albo $q$ dla wybranego zadania,
+    \item odcina te galezie, ktore i tak nie maja szans poprawic aktualnego najlepszego wyniku.
+\end{enumerate}
+
+W wariancie podstawowym program moze uruchomic sam Schrage. W wariancie posrednim konczy dzialanie po heurystyce, czyli po Schrage i poprawie przez wstawianie. Jest to wyraznie szybsze, ale nie daje gwarancji optimum. Ostatni wariant wykorzystuje Carliera.
+
+\section{Organizacja programu}
+
+Program zostal podzielony na kilka prostych plikow:
+
+\begin{itemize}
+    \item \texttt{uruchom\_rpq.py} -- prosty punkt startowy programu,
+    \item \texttt{rpq\_solver/uruchomienie.py} -- odczyt argumentow, danych i wypisywanie wyniku,
+    \item \texttt{rpq\_solver/metody\_schrage.py} -- implementacja Schrage oraz poprawy przez wstawianie,
+    \item \texttt{rpq\_solver/metoda\_carliera.py} -- implementacja algorytmu Carliera.
+\end{itemize}
+
+Kod zostal napisany w Pythonie. Zalozenie bylo takie, zeby program dalo sie uruchomic z linii polecen:
+
+\begin{verbatim}
+python uruchom_rpq.py
+\end{verbatim}
+
+albo np. w trybie szybkim:
+
+\begin{verbatim}
+python uruchom_rpq.py rpq.data.txt --fast
+\end{verbatim}
+
+albo w wariancie samego Schrage:
+
+\begin{verbatim}
+python uruchom_rpq.py rpq.data.txt --schrage
+\end{verbatim}
+
+Kod projektu zostal umieszczony takze w repozytorium GitHub:
+
+\begin{center}
+\fbox{
+\parbox{0.9\linewidth}{
+\centering
+\textbf{Repozytorium GitHub projektu}\\[4pt]
+\url{https://github.com/BuilderHut/komputerowo-zintegrowane-wytwarzanie}
+}
+}
+\end{center}
+
+\section{Srodowisko testowe}
+
+Pomiary czasowe przedstawione w sprawozdaniu byly wykonywane na nastepujacej konfiguracji:
+
+\begin{itemize}
+    \item system: Windows 10 Pro, wersja 25H2, build 26200,
+    \item procesor: Intel(R) Core(TM) i7-8850H CPU @ 2.60GHz,
+    \item liczba logicznych watkow procesora: 12,
+    \item srodowisko uruchomieniowe: Python uruchamiany z poziomu PowerShell.
+\end{itemize}
+
+Ta informacja jest istotna, bo czasy obliczen dla wariantu dokladnego moga sie roznic w zaleznosci od sprzetu i obciazenia komputera.
+
+\section{Czesc eksperymentalna}
+
+Najpierw zostal sprawdzony sam Schrage, potem Schrage z dodatkowa heurystyka poprawiajaca, a na koncu wariant dokladny z algorytmem Carliera. Chodzilo glownie o to, zeby zobaczyc, ile daje juz sama metoda Schrage, ile mozna poprawic prostym ruchem lokalnym i ile jeszcze daje algorytm dokladny.
+
+Wyniki dla dostarczonego pliku \texttt{rpq.data.txt} przedstawia tabela \ref{tab:wyniki}.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.2cm} >{\raggedleft\arraybackslash}p{2.2cm} >{\raggedleft\arraybackslash}p{2.7cm} >{\raggedleft\arraybackslash}p{2.2cm}}
+\caption{Porownanie trzech wariantow obliczen}\label{tab:wyniki}\\
+\toprule
+Instancja & Schrage & Schrage + heurystyka & Carlier \\
+\midrule
+\endfirsthead
+\toprule
+Instancja & Schrage & Schrage + heurystyka & Carlier \\
+\midrule
+\endhead
+data.1 & 13981 & 13862 & 13862 \\
+data.2 & 21529 & 21136 & 20917 \\
+data.3 & 31683 & 31465 & 31343 \\
+data.4 & 34444 & 33878 & 33878 \\
+\midrule
+Suma & 101637 & 100341 & 100000 \\
+\bottomrule
+\end{longtable}
+
+Na podstawie tych wynikow widac kilka rzeczy:
+
+\begin{itemize}
+    \item sam Schrage daje wynik zgodny z kolumna referencyjna dla tego zestawu danych, czyli sume \texttt{101637},
+    \item dodatkowa heurystyka poprawiajaca obniza sume do \texttt{100341},
+    \item Carlier schodzi jeszcze nizej do \texttt{100000},
+    \item dla instancji \texttt{data.1} heurystyka poprawiona od razu trafia w najlepszy wynik,
+    \item dla \texttt{data.2} i \texttt{data.3} widac wyrazny zysk przy przejsciu od Schrage do heurystyki i dalej do Carliera,
+    \item dla \texttt{data.4} poprawa pojawia sie juz na etapie heurystyki, a Carlier nie poprawia wyniku dalej przed osiagnieciem limitu czasu.
+\end{itemize}
+
+Jesli chodzi o czasy, to sam Schrage dziala praktycznie natychmiast, heurystyka poprawiajaca nadal jest bardzo szybka, natomiast Carlier dla trudniejszych instancji potrafi liczyc wielokrotnie dluzej. Najbardziej widac to dla \texttt{data.3} i \texttt{data.4}, gdzie zysk w jakosci okupiony jest wyraznie wiekszym czasem obliczen.
+
+Zbiorcze porownanie orientacyjnych czasow dzialania dla trzech wariantow przedstawia tabela \ref{tab:czasy3}. Wartosci zostaly wziete z pomiarow wykonanych na tym samym komputerze i tym samym zestawie danych.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ccc}
+\toprule
+Wariant & Suma wynikow & Czas laczny [s] \\
+\midrule
+Schrage & 101637 & 0.000 \\
+Schrage + heurystyka & 100341 & 0.331 \\
+Carlier & 100000 & 81.163 \\
+\bottomrule
+\end{tabular}
+\caption{Porownanie lacznego czasu dzialania trzech wariantow}
+\label{tab:czasy3}
+\end{table}
+
+To zestawienie dobrze pokazuje glowny kompromis tego projektu. Sam Schrage jest praktycznie natychmiastowy, heurystyka poprawiajaca daje juz wyraznie lepszy wynik przy nadal bardzo malym czasie, natomiast Carlier daje najlepsza jakosc, ale koszt czasowy rosnie bardzo mocno. Wlasnie dlatego sensowne jest rozroznienie tych trzech poziomow zamiast traktowania wszystkiego jako jednego trybu obliczen.
+
+Zeby sprawdzic, jak duzy wplyw ma limit czasu na wynik, wykonane zostaly jeszcze dodatkowe uruchomienia dla kilku wybranych ograniczen czasowych. Zamiast wypisywac wszystkie testowane wartosci, zostawione zostaly najbardziej reprezentatywne przypadki, czyli bardzo maly limit, limit posredni oraz wieksze limity. Wyniki zbiorcze pokazuje tabela \ref{tab:limity}.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cccc}
+\toprule
+Limit czasu & Suma & Czy byl limit & Uwagi \\
+\midrule
+0.0001 s & 100341 & tak & praktycznie wynik heurystyki, limit dla data.2--data.4 \\
+0.001 s & 100341 & tak & praktycznie wynik heurystyki, limit dla data.2--data.4 \\
+0.005 s & 100181 & tak & poprawa czesciowa, limit dla data.2--data.4 \\
+0.01 s & 100093 & tak & dalsza poprawa, limit dla data.2--data.4 \\
+0.1 s & 100002 & tak & limit osiagniety dla data.2, data.3 i data.4 \\
+0.5 s & 100000 & tak & limit osiagniety dla data.3 i data.4 \\
+1 s & 100000 & tak & limit osiagniety dla data.3 i data.4 \\
+2 s & 100000 & tak & limit osiagniety dla data.3 i data.4 \\
+5 s & 100000 & tak & limit osiagniety dla data.3 i data.4 \\
+60 s & 100000 & tak & limit osiagniety dla data.4 \\
+\bottomrule
+\end{tabular}
+\caption{Wplyw limitu czasu na laczny wynik}
+\label{tab:limity}
+\end{table}
+
+To porownanie okazalo sie dosc ciekawe, bo poczatkowo mozna bylo sie spodziewac, ze bardzo male limity czasu dadza wyraznie slabsze wyniki. I rzeczywiscie tak sie stalo: dla \texttt{0.0001 s} oraz \texttt{0.001 s} suma wyniosla \texttt{100341}, czyli praktycznie tyle samo co w wariancie heurystycznym. Przy \texttt{0.005 s} suma spadla do \texttt{100181}, przy \texttt{0.01 s} do \texttt{100093}, a przy \texttt{0.1 s} do \texttt{100002}. Dla limitow \texttt{0.5 s} i \texttt{1 s} suma wynikow byla juz rowna \texttt{100000}. Nie oznacza to jednak, ze algorytm zakonczyl pelne przeszukiwanie. Program nadal informowal o osiagnieciu limitu dla trudniejszych instancji, czyli wynik byl najlepszym znalezionym w danym czasie, a niekoniecznie wynikiem formalnie potwierdzonym jako optymalny dla kazdej pojedynczej galezi.
+
+W praktyce pokazuje to, ze nawet bardzo niewielki limit czasu moze stopniowo poprawiac wynik, ale na samym poczatku poprawa jest jeszcze niepelna. Zostawione w tabeli wartosci dobrze pokazuja ten trend: od wyniku prawie heurystycznego, przez wariant przejsciowy, az do najlepszego wyniku uzyskanego w eksperymencie. Z drugiej strony nie ma gwarancji, ze na innym zestawie danych sytuacja bedzie tak samo korzystna. Dlatego limit czasu warto traktowac jako kompromis miedzy czasem liczenia a pewnoscia co do jakosci rozwiazania.
+
+\section{Wnioski}
+
+Po wykonaniu projektu mozna dojsc do kilku prostych wnioskow.
+
+Po pierwsze, sam Schrage jest bardzo uzyteczny, bo szybko daje rozwiazanie na przyzwoitym poziomie. Nie zawsze jest ono optymalne, ale jako punkt startowy sprawdza sie dobrze i daje sensowny punkt odniesienia do dalszych porownan.
+
+Po drugie, nawet prosta dodatkowa heurystyka poprawiajaca potrafi dac duzy zysk wzgledem samego Schrage. W tym projekcie roznica pomiedzy \texttt{101637} a \texttt{100341} jest na tyle duza, ze wyraznie pokazuje sens takiego kroku posredniego.
+
+Po trzecie, Carlier faktycznie poprawia wynik tam, gdzie heurystyka nie wystarcza. Jednoczesnie widac, ze odbywa sie to kosztem czasu obliczen, szczegolnie przy trudniejszych instancjach.
+
+Ogolnie projekt pokazal, ze nawet przy dosc prostym programie mozna zobaczyc wyrazna roznice pomiedzy trzema poziomami podejscia: podstawowym, heurystycznie poprawionym i dokladnym. Z punktu widzenia eksperymentalnego bylo to o tyle ciekawe, ze dalo sie bezposrednio porownac te warianty na tych samych danych i zobaczyc, ile daje kolejno sam Schrage, ile daje lokalna poprawa, a ile jeszcze daje dalsze przeszukiwanie przez Carliera.
+
+\end{document}
