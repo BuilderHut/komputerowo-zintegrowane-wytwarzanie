@@ -10,7 +10,7 @@ import numpy as np
 Instance = Tuple[int, np.ndarray, int, np.ndarray]
 
 
-def parse_data_file(path: str | Path) -> List[Instance]:
+def parse_data_file(path: str | Path, require_reference: bool = True) -> List[Instance]:
     """Wczytuje wszystkie instancje data.xxx z jednego pliku data.000.txt."""
     text = Path(path).read_text(encoding="utf-8", errors="replace")
 
@@ -42,7 +42,7 @@ def parse_data_file(path: str | Path) -> List[Instance]:
                 reference_sequence = [x - 1 for x in values[:n]]  # 0-based
                 break
 
-        if reference_cmax < 0 or len(reference_sequence) != n:
+        if require_reference and (reference_cmax < 0 or len(reference_sequence) != n):
             raise ValueError(f"Brak poprawnego wyniku referencyjnego NEH dla data.{instance_id:03d}")
 
         instances.append(
