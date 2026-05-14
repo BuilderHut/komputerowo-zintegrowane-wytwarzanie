@@ -1,129 +1,107 @@
-# NEH, Quick NEH i symulowane wyżarzanie dla F||Cmax
+# NEH / Quick NEH dla F||Cmax
 
-Projekt dotyczy permutacyjnego problemu przepływowego `F||Cmax`. Zaimplementowano:
+Projekt zawiera implementację algorytmu NEH dla problemu harmonogramowania przepływowego `F||Cmax`:
 
-- klasyczny algorytm NEH,
-- przyspieszony Quick NEH / qNEH,
-- symulowane wyżarzanie dla tego samego problemu.
+- klasyczny NEH bez akceleracji,
+- przyspieszony Quick NEH / qNEH.
 
-Programy korzystają z tego samego pliku danych `data.000.txt`, zawierającego instancje `data.000` - `data.120`.
+Skrypt porównuje wyniki z wartościami referencyjnymi zapisanymi w pliku `data.000.txt` i zapisuje zestawienie do CSV.
 
 ## Zawartość
 
-- `neh_python_50.py` - punkt startowy dla NEH i Quick NEH
+- `neh_python_50.py` - główny plik uruchomieniowy
 - `data_io.py` - wczytywanie instancji i wyników referencyjnych
-- `neh_algorithms.py` - obliczanie `Cmax`, NEH i Quick NEH
-- `benchmark.py` - benchmark NEH, zapis CSV i walidacja czasu
-- `simulated_annealing.py` - pojedyncze uruchomienie symulowanego wyżarzania
-- `run_sa_experiments.py` - badania porównawcze SA i generowanie wykresów
-- `data.000.txt` - dane wejściowe
-- `wyniki_neh.csv` - wyniki porównania NEH i Quick NEH
-- `results/` - wyniki eksperymentów SA w CSV
-- `plots/` - wykresy wygenerowane przez eksperymenty SA
-- `notes_do_sprawozdania.md` - notatki do przygotowania sprawozdania
-- `requirements.txt` - wymagane biblioteki
+- `neh_algorithms.py` - implementacja NEH oraz Quick NEH
+- `benchmark.py` - pomiary czasu, zapis CSV i walidacja
+- `data.000.txt` - plik z instancjami testowymi `data.000` - `data.120`
+- `wyniki_neh.csv` - wyniki badań porównawczych dla 120 instancji
+- `sprawozdanie.tex` - sprawozdanie w formacie LaTeX
+- `requirements.txt` - lista wymaganych bibliotek Pythona
 
 ## Wymagania
 
 - Python 3.10+
 - `numpy`
 - `numba`
-- `pandas`
-- `matplotlib`
 
-Instalacja:
+Instalacja zależności:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Uruchomienie NEH
+## Uruchomienie
 
-Domyślne uruchomienie dla instancji `data.001` - `data.120`:
+Domyślne uruchomienie:
 
 ```bash
 python neh_python_50.py data.000.txt
 ```
 
-Tylko Quick NEH:
+Tylko wersja przyspieszona:
 
 ```bash
 python neh_python_50.py data.000.txt --quick-only
 ```
 
-Walidacja warunku czasu poniżej 1 s dla Quick NEH:
+Walidacja warunku czasowego dla Quick NEH:
 
 ```bash
 python neh_python_50.py data.000.txt --validate-speed
 ```
 
-## Uruchomienie symulowanego wyżarzania
+Tryb ten wypisuje `PASS`, jeśli maksymalny czas Quick NEH dla 120 instancji jest mniejszy niż 1 s.
 
-Przykład dla jednej instancji:
-
-```bash
-python simulated_annealing.py data.000.txt --instance data.001 --iterations 10000 --t-start 1000 --t-end 0.01 --alpha 0.995 --initial neh --neighborhood swap --seed 123
-```
-
-Najważniejsze parametry:
-
-- `--instance` - wybrana instancja, np. `data.001`
-- `--iterations` - liczba iteracji
-- `--t-start` - temperatura początkowa
-- `--t-end` - temperatura końcowa
-- `--alpha` - współczynnik chłodzenia
-- `--initial` - rozwiązanie startowe: `neh` albo `random`
-- `--neighborhood` - typ sąsiedztwa: `swap` albo `insert`
-- `--seed` - ziarno losowości dla powtarzalności wyników
-
-Historia iteracji jest zapisywana domyślnie do:
-
-```text
-results/sa_history_example.csv
-```
-
-## Badania eksperymentalne
-
-Uruchomienie badań dla zakresu instancji:
+Uwzględnienie również instancji `data.000`:
 
 ```bash
-python run_sa_experiments.py data.000.txt --instances data.001:data.020 --repeats 5
+python neh_python_50.py data.000.txt --include-data-000
 ```
 
-Skrypt bada wpływ:
+Zmiana nazwy pliku CSV:
 
-- liczby iteracji,
-- temperatury początkowej,
-- współczynnika chłodzenia `alpha`,
-- rozwiązania początkowego,
-- typu sąsiedztwa.
+```bash
+python neh_python_50.py data.000.txt --csv wyniki_neh.csv
+```
 
-Wyniki CSV:
+## Opis działania
 
-- `results/sa_runs.csv` - wszystkie pojedyncze uruchomienia
-- `results/sa_summary.csv` - uśrednione wyniki dla wariantów
-- `results/comparison_neh_sa.csv` - porównanie NEH i SA
-- `results/sa_history_example.csv` - historia przykładowego przebiegu SA
+Program:
 
-Wykresy:
+1. Wczytuje wszystkie instancje `data.xxx` z pliku wejściowego.
+2. Pobiera z sekcji `neh:` wynik referencyjny.
+3. Uruchamia:
+   - `neh_quick_numba()` - wariant z akceleracją,
+   - `neh_naive_numba()` - wariant klasyczny.
+4. Porównuje `Cmax` oraz kolejność zadań z wynikiem referencyjnym.
+5. Zapisuje wyniki do pliku CSV.
 
-- `plots/cmax_current_vs_best_example.png`
-- `plots/influence_iterations.png`
-- `plots/influence_temperature.png`
-- `plots/influence_alpha.png`
-- `plots/influence_initial.png`
-- `plots/influence_neighborhood.png`
-- `plots/comparison_neh_sa.png`
+Kod jest podzielony na moduły, aby oddzielić logikę algorytmu od wczytywania danych
+i części pomiarowej. Plik `neh_python_50.py` pozostaje punktem startowym programu.
 
-## Aktualnie wygenerowane wyniki
+## Wyniki
 
-W repozytorium znajdują się przykładowe wyniki dla instancji `data.001` - `data.005`
-z dwoma powtórzeniami na wariant. Pełne badania można uruchomić poleceniem z sekcji
-`Badania eksperymentalne`.
+W konsoli pojawia się tabela z polami:
+
+- `instance`
+- `n`
+- `m`
+- `ref`
+- `quick`
+- `quick_time_s`
+- `naive`
+- `naive_time_s`
+- `ok`
+
+Plik CSV zawiera dodatkowo:
+
+- sekwencję zadań dla Quick NEH,
+- sekwencję zadań dla NEH bez akceleracji,
+- flagę zgodności z wynikiem referencyjnym.
 
 ## Uwagi
 
-- Domyślnie NEH analizuje instancje `data.001` - `data.120`, czyli pomija małą instancję przykładową `data.000`.
-- Symulowane wyżarzanie może startować z rozwiązania NEH albo z losowej permutacji.
-- SA czasem akceptuje gorsze rozwiązania, co jest widoczne na wykresie `current_cmax` względem `best_cmax`.
-- Projekt nie wymaga internetu podczas działania po zainstalowaniu zależności.
+- Skrypt zakłada, że w pliku wejściowym znajdują się sekcje w formacie `data.xxx:` oraz odpowiadające im wyniki `neh:`.
+- Wersja Quick NEH jest przygotowana do porównań czasowych na większym zbiorze instancji.
+- Bez `numba` skrypt nie uruchomi się, ponieważ obie implementacje korzystają z JIT.
+- Folder `.vscode` nie jest wymagany do działania projektu; zawiera tylko lokalne ustawienia edytora.
