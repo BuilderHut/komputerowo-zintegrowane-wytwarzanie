@@ -1,0 +1,3 @@
+algorithm,mean_initial_cmax,mean_best_cmax,mean_difference_vs_initial,mean_improvement_vs_initial_percent,mean_difference_vs_neh,mean_improvement_vs_neh_percent,best_improvement_vs_neh_percent,worst_improvement_vs_neh_percent,mean_time_s,mean_objective_evaluations,runs
+Simulated Annealing,30558.233333333334,27491.133333333335,-3067.1,10.030900282240161,583.7333333333333,-2.1702385072296706,-1.5358041380346212,-2.804649418822647,0.33164921665835817,10000.0,30
+Tabu Search,30558.233333333334,27390.633333333335,-3167.6,10.358827522163786,483.23333333333335,-1.7977113024160303,-1.1569026058029939,-2.4918621618587946,0.5118747433298267,20000.0,30

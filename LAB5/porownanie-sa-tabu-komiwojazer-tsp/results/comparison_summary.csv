@@ -1,0 +1,3 @@
+algorithm,mean_initial_length,mean_best_length,mean_improvement_vs_initial_percent,mean_difference_vs_nearest_neighbor,mean_time_s,mean_objective_evaluations,runs
+Simulated Annealing,62352.758280813236,10334.15491590685,83.37531743083292,-513.20840407655,0.35400247399578805,20000.0,50
+Tabu Search,62352.758280813236,13077.862522981639,78.97701154835751,2230.4992029982395,0.3347010580031201,20000.0,50
